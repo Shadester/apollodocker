@@ -54,11 +54,17 @@ echo "Patching repository URLs to use working alternatives..."
 # Replace ONLY defunct bebbo repositories with AmigaPorts alternatives
 sed -i 's|https://github.com/bebbo/|https://github.com/AmigaPorts/|g' default-repos
 
-echo "Updated repository URLs:"
+# Fix branch names for repositories that use 'main' instead of 'master'
+echo "Fixing branch names for repositories using 'main' branch..."
+sed -i 's|amiga-netinclude_BRANCH=master|amiga-netinclude_BRANCH=main|g' default-repos
+
+echo "Updated repository URLs and branches:"
 echo "Bebbo repositories replaced with AmigaPorts alternatives:"
 grep -c "AmigaPorts" default-repos || echo "0"
 echo "Remaining bebbo references:"
 grep -c "bebbo" default-repos || echo "0"
+echo "Branch fixes applied:"
+grep "amiga-netinclude_BRANCH" default-repos || echo "No amiga-netinclude branch config found"
 
 echo "Building GCC 6.5.0 for m68k-amigaos..."
 echo "Using ${PARALLEL_JOBS} parallel jobs"
