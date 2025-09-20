@@ -1,5 +1,5 @@
 # VS Code Server Dockerfile for Apollo development
-FROM apollo-crossdev:latest
+FROM ghcr.io/shadester/apollodocker:latest
 
 USER root
 
