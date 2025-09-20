@@ -30,15 +30,10 @@ cd amiga-gcc
 echo "Building GCC 6.5.0 for m68k-amigaos..."
 echo "Using ${PARALLEL_JOBS} parallel jobs"
 
-# Build the cross-compiler
-make -j${PARALLEL_JOBS} \
-    PREFIX=${TOOLCHAIN_PREFIX} \
-    TARGET=m68k-amigaos
-
-echo "Installing toolchain to ${TOOLCHAIN_PREFIX}..."
-make install \
-    PREFIX=${TOOLCHAIN_PREFIX} \
-    TARGET=m68k-amigaos
+# Build and install the complete toolchain
+echo "Building and installing minimal toolchain..."
+make -j${PARALLEL_JOBS} min \
+    PREFIX=${TOOLCHAIN_PREFIX}
 
 # Verify installation
 if [ -f "${TOOLCHAIN_PREFIX}/bin/m68k-amigaos-gcc" ]; then
