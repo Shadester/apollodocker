@@ -59,6 +59,8 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        secrets: |
+          github_token=${{ secrets.GITHUB_TOKEN }}
 
     - name: Build VS Code image
       uses: docker/build-push-action@v5
@@ -71,6 +73,8 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        secrets: |
+          github_token=${{ secrets.GITHUB_TOKEN }}
 
   test:
     runs-on: ubuntu-latest
@@ -92,6 +96,8 @@ jobs:
         load: true
         tags: apollo-test:latest
         cache-from: type=gha
+        secrets: |
+          github_token=${{ secrets.GITHUB_TOKEN }}
 
     - name: Test toolchain installation
       run: |

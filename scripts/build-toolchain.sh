@@ -32,9 +32,19 @@ git config --global user.name "Apollo Docker Build"
 git config --global advice.detachedHead false
 git config --global credential.helper ""
 
-# Configure Git to use HTTPS instead of SSH for GitHub
-git config --global url."https://github.com/".insteadOf git@github.com:
-git config --global url."https://".insteadOf git://
+# Require GitHub token for authentication
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "✗ ERROR: GitHub token is required for building the toolchain"
+    echo "The amiga-gcc build process needs to clone additional repositories"
+    echo "Please provide GITHUB_TOKEN as a build secret"
+    exit 1
+fi
+
+echo "✓ GitHub token available, configuring authenticated access..."
+# Use authenticated URLs for GitHub repositories
+git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf https://github.com/
+git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf git@github.com:
+git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf git://github.com/
 
 echo "Cloning Amiga-GCC repository..."
 git clone https://github.com/WDrijver/amiga-gcc.git

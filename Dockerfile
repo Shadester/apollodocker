@@ -1,6 +1,7 @@
 # Multi-architecture Dockerfile for Apollo Vampire 68080 and AmigaOS cross-compilation
 # Supports both x86_64 (amd64) and ARM64 architectures
 
+# syntax=docker/dockerfile:1
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
@@ -66,7 +67,9 @@ COPY scripts/ /opt/apollo/scripts/
 RUN chmod +x /opt/apollo/scripts/*.sh
 
 # Build the toolchain
-RUN /opt/apollo/scripts/build-toolchain.sh
+RUN --mount=type=secret,id=github_token \
+    GITHUB_TOKEN=$(cat /run/secrets/github_token 2>/dev/null || echo "") \
+    /opt/apollo/scripts/build-toolchain.sh
 
 # Install additional SDKs and libraries
 RUN /opt/apollo/scripts/install-sdks.sh
