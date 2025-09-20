@@ -1,38 +1,35 @@
 # VS Code Server Dockerfile for Apollo development
-FROM ghcr.io/shadester/apollodocker:latest
+# Use the official LinuxServer.io multi-arch code-server as base to avoid QEMU issues
+FROM lscr.io/linuxserver/code-server:latest
 
 USER root
 
-# Install Node.js and npm directly (more QEMU-friendly than apt-get)
-# Use the Node.js binary distribution to avoid package manager issues
-ARG TARGETARCH
-RUN ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x64") && \
-    curl -fsSL https://nodejs.org/dist/v18.18.0/node-v18.18.0-linux-${ARCH}.tar.xz | \
-    tar -xJ -C /usr/local --strip-components=1
+# Install Apollo toolchain from our main image
+COPY --from=ghcr.io/shadester/apollodocker:latest /opt/apollo /opt/apollo
 
-# Install code-server via npm (avoids system package issues)
-RUN npm install -g code-server@4.19.1
+# Update PATH to include Apollo toolchain
+ENV PATH="/opt/apollo/toolchain/bin:${PATH}"
+ENV APOLLO_ROOT=/opt/apollo
+ENV APOLLO_TOOLCHAIN=/opt/apollo/toolchain
+ENV APOLLO_SDK=/opt/apollo/sdk
 
-# Install useful VS Code extensions
-RUN code-server --install-extension ms-vscode.cpptools
-RUN code-server --install-extension prb28.amiga-assembly || true
+# Set up Apollo environment for the abc user (code-server default user)
+RUN echo 'export PATH=/opt/apollo/toolchain/bin:$PATH' >> /config/.bashrc && \
+    echo 'export APOLLO_ROOT=/opt/apollo' >> /config/.bashrc && \
+    echo 'export APOLLO_TOOLCHAIN=/opt/apollo/toolchain' >> /config/.bashrc && \
+    echo 'export APOLLO_SDK=/opt/apollo/sdk' >> /config/.bashrc
 
-# Create VS Code configuration
-RUN mkdir -p /home/apollo/.config/code-server
-COPY configs/vscode-settings.json /home/apollo/.config/code-server/config.yaml
+# Create VS Code workspace configuration
+RUN mkdir -p /config/workspace/.vscode
+COPY configs/vscode-settings.json /config/workspace/.vscode/settings.json
+COPY configs/vscode-tasks.json /config/workspace/.vscode/tasks.json
+COPY configs/vscode-launch.json /config/workspace/.vscode/launch.json
 
-# Set up workspace configuration
-RUN mkdir -p /workspace/.vscode
-COPY configs/vscode-workspace.json /workspace/.vscode/settings.json
-COPY configs/vscode-tasks.json /workspace/.vscode/tasks.json
-COPY configs/vscode-launch.json /workspace/.vscode/launch.json
+# Set ownership for code-server user
+RUN chown -R abc:abc /config
 
-# Fix permissions
-RUN chown -R apollo:apollo /home/apollo/.config
-RUN chown -R apollo:apollo /workspace/.vscode
-
-USER apollo
+USER abc
 
 EXPOSE 8080
 
-CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "/workspace"]
+# Use the default code-server CMD from base image
