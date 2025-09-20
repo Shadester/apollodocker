@@ -56,7 +56,7 @@ sed -i 's|https://github.com/bebbo/|https://github.com/AmigaPorts/|g' default-re
 
 # Fix branch names for repositories that use 'main' instead of 'master'
 echo "Fixing branch names for repositories using 'main' branch..."
-sed -i 's|amiga-netinclude_BRANCH=master|amiga-netinclude_BRANCH=main|g' default-repos
+sed -i 's|\(amiga-netinclude.*\)master|\1main|g' default-repos
 
 echo "Updated repository URLs and branches:"
 echo "Bebbo repositories replaced with AmigaPorts alternatives:"
