@@ -3,8 +3,17 @@ FROM ghcr.io/shadester/apollodocker:latest
 
 USER root
 
-# Install VS Code Server
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+# Install VS Code Server with proper multi-arch support
+RUN ARCH=$(dpkg --print-architecture) && \
+    if [ "$ARCH" = "arm64" ]; then \
+        curl -fOL https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_arm64.deb && \
+        dpkg -i code-server_4.19.1_arm64.deb && \
+        rm code-server_4.19.1_arm64.deb; \
+    else \
+        curl -fOL https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_amd64.deb && \
+        dpkg -i code-server_4.19.1_amd64.deb && \
+        rm code-server_4.19.1_amd64.deb; \
+    fi
 
 # Install useful VS Code extensions
 RUN code-server --install-extension ms-vscode.cpptools
