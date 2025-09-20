@@ -1,0 +1,31 @@
+# VS Code Server Dockerfile for Apollo development
+FROM apollo-crossdev:latest
+
+USER root
+
+# Install VS Code Server
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+# Install useful VS Code extensions
+RUN code-server --install-extension ms-vscode.cpptools
+RUN code-server --install-extension prb28.amiga-assembly || true
+
+# Create VS Code configuration
+RUN mkdir -p /home/apollo/.config/code-server
+COPY configs/vscode-settings.json /home/apollo/.config/code-server/config.yaml
+
+# Set up workspace configuration
+RUN mkdir -p /workspace/.vscode
+COPY configs/vscode-workspace.json /workspace/.vscode/settings.json
+COPY configs/vscode-tasks.json /workspace/.vscode/tasks.json
+COPY configs/vscode-launch.json /workspace/.vscode/launch.json
+
+# Fix permissions
+RUN chown -R apollo:apollo /home/apollo/.config
+RUN chown -R apollo:apollo /workspace/.vscode
+
+USER apollo
+
+EXPOSE 8080
+
+CMD ["code-server", "--bind-addr", "0.0.0.0:8080", "--auth", "none", "/workspace"]

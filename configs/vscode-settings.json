@@ -1,0 +1,31 @@
+{
+    "C_Cpp.default.compilerPath": "/opt/apollo/toolchain/bin/m68k-amigaos-gcc",
+    "C_Cpp.default.cStandard": "c99",
+    "C_Cpp.default.cppStandard": "c++11",
+    "C_Cpp.default.includePath": [
+        "/opt/apollo/sdk/ndk/include",
+        "/opt/apollo/sdk/apollo/include",
+        "/opt/apollo/toolchain/m68k-amigaos/include"
+    ],
+    "C_Cpp.default.defines": [
+        "__AMIGA__",
+        "__M68K__",
+        "APOLLO_68080"
+    ],
+    "files.associations": {
+        "*.h": "c",
+        "*.c": "c",
+        "*.asm": "amiga-assembly",
+        "*.s": "amiga-assembly"
+    },
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.env.linux": {
+        "APOLLO_ROOT": "/opt/apollo",
+        "APOLLO_TOOLCHAIN": "/opt/apollo/toolchain",
+        "APOLLO_SDK": "/opt/apollo/sdk",
+        "PATH": "/opt/apollo/toolchain/bin:${env:PATH}"
+    }
+}

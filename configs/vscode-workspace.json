@@ -1,0 +1,24 @@
+{
+    "folders": [
+        {
+            "path": "/workspace"
+        }
+    ],
+    "settings": {
+        "C_Cpp.default.compilerPath": "/opt/apollo/toolchain/bin/m68k-amigaos-gcc",
+        "C_Cpp.default.includePath": [
+            "/opt/apollo/sdk/ndk/include",
+            "/opt/apollo/sdk/apollo/include"
+        ],
+        "terminal.integrated.env.linux": {
+            "APOLLO_ROOT": "/opt/apollo",
+            "PATH": "/opt/apollo/toolchain/bin:${env:PATH}"
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.cpptools",
+            "prb28.amiga-assembly"
+        ]
+    }
+}

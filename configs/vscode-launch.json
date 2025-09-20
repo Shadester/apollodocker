@@ -1,0 +1,62 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Apollo Program",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "APOLLO_ROOT",
+                    "value": "/opt/apollo"
+                },
+                {
+                    "name": "APOLLO_SDK",
+                    "value": "/opt/apollo/sdk"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/opt/apollo/toolchain/bin/m68k-amigaos-gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Build Apollo Project"
+        },
+        {
+            "name": "Remote Debug (Apollo Hardware)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/${fileBasenameNoExtension}",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/opt/apollo/toolchain/bin/m68k-amigaos-gdb",
+            "miDebuggerServerAddress": "apollo-hardware:2159",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set target remote",
+                    "text": "target remote apollo-hardware:2159",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "Build Apollo Project"
+        }
+    ]
+}

@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  apollo-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    image: apollo-crossdev:latest
+    container_name: apollo-vampire-dev
+    volumes:
+      # Mount your project directory
+      - ./projects:/workspace/projects
+      # Mount toolchain for persistence (optional)
+      - apollo-toolchain:/opt/apollo/toolchain
+      # Mount SDK for persistence (optional)  
+      - apollo-sdk:/opt/apollo/sdk
+    working_dir: /workspace
+    environment:
+      - APOLLO_ROOT=/opt/apollo
+      - APOLLO_TOOLCHAIN=/opt/apollo/toolchain
+      - APOLLO_SDK=/opt/apollo/sdk
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+  # Quick build service for one-off compilations
+  apollo-build:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: apollo-crossdev:latest
+    volumes:
+      - ./projects:/workspace/projects
+      - apollo-toolchain:/opt/apollo/toolchain
+      - apollo-sdk:/opt/apollo/sdk
+    working_dir: /workspace/projects
+    environment:
+      - APOLLO_ROOT=/opt/apollo
+      - APOLLO_TOOLCHAIN=/opt/apollo/toolchain
+      - APOLLO_SDK=/opt/apollo/sdk
+    profiles:
+      - build
+
+  # Development environment with VS Code server (optional)
+  apollo-vscode:
+    build: 
+      context: .
+      dockerfile: Dockerfile.vscode
+    image: apollo-crossdev-vscode:latest
+    container_name: apollo-vscode-server
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./projects:/workspace/projects
+      - apollo-toolchain:/opt/apollo/toolchain
+      - apollo-sdk:/opt/apollo/sdk
+    working_dir: /workspace
+    environment:
+      - APOLLO_ROOT=/opt/apollo
+      - APOLLO_TOOLCHAIN=/opt/apollo/toolchain
+      - APOLLO_SDK=/opt/apollo/sdk
+    profiles:
+      - vscode
+
+volumes:
+  apollo-toolchain:
+    driver: local
+  apollo-sdk:
+    driver: local

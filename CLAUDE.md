@@ -2,36 +2,110 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Status
+## Project Overview
 
-This appears to be a new/empty repository named "apollodocker". The directory structure suggests this may be intended for an Apollo GraphQL project with Docker integration, but no code has been implemented yet.
+This is Apollo Docker - a multi-architecture Docker environment for Apollo Vampire 68080 and AmigaOS cross-compilation development. The project provides a containerized alternative to shell script-based toolchain setups, with support for both x86_64 and ARM64 architectures.
 
-## Development Setup
+## Common Development Commands
 
-Since this is currently an empty repository, future instances should:
+### Building and Testing
+```bash
+# Build Docker image for current platform
+make build
 
-1. Initialize the project structure based on the intended technology stack
-2. Set up appropriate build tools and package management
-3. Configure Docker containers if this is indeed a Docker-based project
-4. Establish testing frameworks and linting rules
+# Build multi-architecture images (requires buildx)
+make build-multi
 
-## Architecture Notes
+# Test the toolchain
+make test
 
-No existing architecture to document. When code is added, this section should be updated with:
+# Clean containers and images
+make clean
+```
 
-- Project structure and key directories
-- Technology stack decisions (Apollo GraphQL, Docker, etc.)
-- Build and deployment patterns
-- Testing strategies
+### Development Workflows
+```bash
+# Start interactive development environment
+make run
 
-## Commands
+# Start interactive shell only
+make shell
 
-No commands available yet. When the project is set up, common commands should be documented here such as:
+# Start VS Code server (accessible at http://localhost:8080)
+make vscode
 
-- Build commands
-- Test execution
-- Linting and formatting
-- Docker operations (if applicable)
-- Development server startup
+# Create example project
+make example
+```
 
-This file should be updated as the project evolves and code is added.
+### Docker Compose Operations
+```bash
+# Start development environment
+docker-compose up apollo-dev
+
+# Run one-off build command
+docker-compose run --rm apollo-build make -C projects/hello-apollo
+
+# Start VS Code server
+docker-compose --profile vscode up apollo-vscode
+```
+
+## Architecture
+
+### Key Components
+- **Multi-arch Dockerfile**: Supports amd64 and arm64 platforms
+- **Cross-compilation toolchain**: GCC 6.5.0 optimized for Apollo Vampire 68080
+- **SDK integration**: AmigaOS NDK 3.2 and Apollo-specific headers
+- **VS Code integration**: Web-based development environment
+- **CI/CD**: GitHub Actions for automated builds and testing
+
+### Directory Structure
+```
+/opt/apollo/           # Toolchain and SDK root
+├── toolchain/         # m68k-amigaos cross-compiler
+├── sdk/              # Development SDKs and headers
+└── setup-env.sh      # Environment configuration
+
+/workspace/           # Development workspace
+└── projects/         # User projects
+```
+
+### Build Scripts
+- `scripts/build-toolchain.sh`: Builds the GCC cross-compiler
+- `scripts/install-sdks.sh`: Installs SDKs and creates templates
+
+## Cross-compilation Details
+
+### Target Platform
+- **CPU**: Motorola 68080 (Apollo Vampire)
+- **OS**: AmigaOS
+- **Toolchain**: m68k-amigaos-gcc 6.5.0
+
+### Compiler Flags
+```bash
+-m68080                # Target Apollo 68080 CPU
+-O2                    # Optimization
+-noixemul -mcrt=nix13  # Use newlib runtime
+```
+
+### Available Tools
+- `m68k-amigaos-gcc` - C/C++ compiler
+- `m68k-amigaos-ld` - Linker  
+- `m68k-amigaos-as` - Assembler
+- `m68k-amigaos-gdb` - Debugger
+
+## VS Code Configuration
+
+The project includes complete VS Code setup in `configs/`:
+- IntelliSense configuration for Apollo/AmigaOS headers
+- Build and debug tasks
+- Remote debugging support for Apollo hardware
+- Amiga Assembly syntax highlighting
+
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/build-and-push.yml`):
+- Multi-architecture builds
+- Automated testing
+- Container registry publishing
+- Toolchain verification
