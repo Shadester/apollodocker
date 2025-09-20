@@ -1,22 +1,17 @@
 # VS Code Server Dockerfile for Apollo development
 FROM ghcr.io/shadester/apollodocker:latest
 
-# Use build args for better multi-arch support
-ARG TARGETARCH
-
 USER root
 
-# Install VS Code Server using build args (more QEMU-friendly)
-RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+# Install Node.js and npm directly (more QEMU-friendly than apt-get)
+# Use the Node.js binary distribution to avoid package manager issues
+ARG TARGETARCH
+RUN ARCH=$([ "$TARGETARCH" = "arm64" ] && echo "arm64" || echo "x64") && \
+    curl -fsSL https://nodejs.org/dist/v18.18.0/node-v18.18.0-linux-${ARCH}.tar.xz | \
+    tar -xJ -C /usr/local --strip-components=1
 
-RUN if [ "$TARGETARCH" = "arm64" ]; then \
-        wget https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_arm64.deb; \
-    else \
-        wget https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_amd64.deb; \
-    fi
-
-RUN dpkg -i code-server_4.19.1_*.deb || apt-get install -f -y
-RUN rm code-server_4.19.1_*.deb
+# Install code-server via npm (avoids system package issues)
+RUN npm install -g code-server@4.19.1
 
 # Install useful VS Code extensions
 RUN code-server --install-extension ms-vscode.cpptools
