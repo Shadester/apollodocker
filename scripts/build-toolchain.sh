@@ -23,6 +23,19 @@ cd ${WORKSPACE}
 echo "Cleaning workspace..."
 rm -rf amiga-gcc || true
 
+echo "Configuring Git for container environment..."
+export GIT_TERMINAL_PROMPT=0
+export GIT_ASKPASS=echo
+
+git config --global user.email "build@apollodocker.local"
+git config --global user.name "Apollo Docker Build"
+git config --global advice.detachedHead false
+git config --global credential.helper ""
+
+# Configure Git to use HTTPS instead of SSH for GitHub
+git config --global url."https://github.com/".insteadOf git@github.com:
+git config --global url."https://".insteadOf git://
+
 echo "Cloning Amiga-GCC repository..."
 git clone https://github.com/WDrijver/amiga-gcc.git
 cd amiga-gcc

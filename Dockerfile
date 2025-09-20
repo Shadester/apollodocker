@@ -49,6 +49,18 @@ ENV APOLLO_TOOLCHAIN=${APOLLO_ROOT}/toolchain
 ENV APOLLO_SDK=${APOLLO_ROOT}/sdk
 ENV PATH=${APOLLO_TOOLCHAIN}/bin:${PATH}
 
+# Git environment variables for non-interactive builds
+ENV GIT_TERMINAL_PROMPT=0
+ENV GIT_ASKPASS=echo
+
+# Configure Git for container builds
+RUN git config --system user.email "build@apollodocker.local" && \
+    git config --system user.name "Apollo Docker Build" && \
+    git config --system advice.detachedHead false && \
+    git config --system url."https://github.com/".insteadOf git@github.com: && \
+    git config --system url."https://".insteadOf git:// && \
+    git config --system credential.helper ""
+
 # Copy build scripts
 COPY scripts/ /opt/apollo/scripts/
 RUN chmod +x /opt/apollo/scripts/*.sh
