@@ -51,13 +51,14 @@ git clone https://github.com/WDrijver/amiga-gcc.git
 cd amiga-gcc
 
 echo "Patching repository URLs to use working alternatives..."
-# Replace defunct bebbo repositories with working alternatives
-sed -i 's|https://github.com/bebbo/fd2pragma|https://github.com/AmigaPorts/fd2pragma|g' default-repos
-sed -i 's|https://github.com/bebbo/amiga-netinclude|https://github.com/AmigaPorts/amiga-netinclude|g' default-repos
-sed -i 's|https://github.com/bebbo/clib2|https://github.com/AmigaPorts/clib2|g' default-repos
+# Replace ONLY defunct bebbo repositories with AmigaPorts alternatives
+sed -i 's|https://github.com/bebbo/|https://github.com/AmigaPorts/|g' default-repos
 
 echo "Updated repository URLs:"
-grep -E "(fd2pragma|amiga-netinclude|clib2)" default-repos || true
+echo "Bebbo repositories replaced with AmigaPorts alternatives:"
+grep -c "AmigaPorts" default-repos || echo "0"
+echo "Remaining bebbo references:"
+grep -c "bebbo" default-repos || echo "0"
 
 echo "Building GCC 6.5.0 for m68k-amigaos..."
 echo "Using ${PARALLEL_JOBS} parallel jobs"
