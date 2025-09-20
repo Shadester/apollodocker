@@ -66,13 +66,14 @@ RUN git config --system user.email "build@apollodocker.local" && \
 COPY scripts/ /opt/apollo/scripts/
 RUN chmod +x /opt/apollo/scripts/*.sh
 
-# Build the toolchain
+# Build the toolchain and install SDKs in single layer, then clean up build artifacts
 RUN --mount=type=secret,id=github_token \
     GITHUB_TOKEN=$(cat /run/secrets/github_token 2>/dev/null || echo "") \
-    /opt/apollo/scripts/build-toolchain.sh
-
-# Install additional SDKs and libraries
-RUN /opt/apollo/scripts/install-sdks.sh
+    /opt/apollo/scripts/build-toolchain.sh && \
+    /opt/apollo/scripts/install-sdks.sh && \
+    rm -rf /opt/apollo/build && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Create development user
 RUN useradd -m -s /bin/bash apollo && \

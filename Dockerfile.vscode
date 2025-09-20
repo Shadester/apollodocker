@@ -1,35 +1,25 @@
 # VS Code Server Dockerfile for Apollo development
-# Use the official LinuxServer.io multi-arch code-server as base to avoid QEMU issues
+# Use proven multi-arch code-server base image
 FROM lscr.io/linuxserver/code-server:latest
 
 USER root
 
-# Install Apollo toolchain from our main image
-COPY --from=ghcr.io/shadester/apollodocker:latest /opt/apollo /opt/apollo
+# Copy only essential Apollo toolchain components to minimize layer size
+COPY --from=ghcr.io/shadester/apollodocker:latest /opt/apollo/toolchain /opt/apollo/toolchain
+COPY --from=ghcr.io/shadester/apollodocker:latest /opt/apollo/sdk /opt/apollo/sdk
+COPY --from=ghcr.io/shadester/apollodocker:latest /opt/apollo/setup-env.sh /opt/apollo/setup-env.sh
 
-# Update PATH to include Apollo toolchain
-ENV PATH="/opt/apollo/toolchain/bin:${PATH}"
-ENV APOLLO_ROOT=/opt/apollo
-ENV APOLLO_TOOLCHAIN=/opt/apollo/toolchain
-ENV APOLLO_SDK=/opt/apollo/sdk
+# Set environment variables
+ENV PATH="/opt/apollo/toolchain/bin:${PATH}" \
+    APOLLO_ROOT=/opt/apollo \
+    APOLLO_TOOLCHAIN=/opt/apollo/toolchain \
+    APOLLO_SDK=/opt/apollo/sdk
 
-# Set up Apollo environment for the abc user (code-server default user)
-RUN echo 'export PATH=/opt/apollo/toolchain/bin:$PATH' >> /config/.bashrc && \
-    echo 'export APOLLO_ROOT=/opt/apollo' >> /config/.bashrc && \
-    echo 'export APOLLO_TOOLCHAIN=/opt/apollo/toolchain' >> /config/.bashrc && \
-    echo 'export APOLLO_SDK=/opt/apollo/sdk' >> /config/.bashrc
-
-# Create VS Code workspace configuration
-RUN mkdir -p /config/workspace/.vscode
-COPY configs/vscode-settings.json /config/workspace/.vscode/settings.json
-COPY configs/vscode-tasks.json /config/workspace/.vscode/tasks.json
-COPY configs/vscode-launch.json /config/workspace/.vscode/launch.json
-
-# Set ownership for code-server user
-RUN chown -R abc:abc /config
+# Configure environment in single layer and clean up
+RUN mkdir -p /config/workspace/.vscode && \
+    echo 'source /opt/apollo/setup-env.sh' >> /config/.bashrc && \
+    chown -R abc:abc /config && \
+    rm -rf /tmp/* /var/tmp/*
 
 USER abc
-
 EXPOSE 8080
-
-# Use the default code-server CMD from base image

@@ -50,6 +50,11 @@ jobs:
           type=semver,pattern={{major}}
           type=raw,value=latest,enable={{is_default_branch}}
 
+    - name: Clean up disk space
+      run: |
+        docker system prune -f
+        df -h
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
@@ -59,9 +64,14 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha,mode=min
         secrets: |
           "github_token=${{ secrets.GITHUB_TOKEN }}"
+
+    - name: Clean up after main build
+      run: |
+        docker system prune -f
+        df -h
 
     - name: Build VS Code image
       uses: docker/build-push-action@v6
@@ -73,7 +83,7 @@ jobs:
         tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-vscode:${{ steps.meta.outputs.version }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-to: type=gha,mode=min
         secrets: |
           "github_token=${{ secrets.GITHUB_TOKEN }}"
 
