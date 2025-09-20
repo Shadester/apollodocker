@@ -1,19 +1,22 @@
 # VS Code Server Dockerfile for Apollo development
 FROM ghcr.io/shadester/apollodocker:latest
 
+# Use build args for better multi-arch support
+ARG TARGETARCH
+
 USER root
 
-# Install VS Code Server with proper multi-arch support
-RUN ARCH=$(dpkg --print-architecture) && \
-    if [ "$ARCH" = "arm64" ]; then \
-        curl -fOL https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_arm64.deb && \
-        dpkg -i code-server_4.19.1_arm64.deb && \
-        rm code-server_4.19.1_arm64.deb; \
+# Install VS Code Server using build args (more QEMU-friendly)
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        wget https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_arm64.deb; \
     else \
-        curl -fOL https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_amd64.deb && \
-        dpkg -i code-server_4.19.1_amd64.deb && \
-        rm code-server_4.19.1_amd64.deb; \
+        wget https://github.com/coder/code-server/releases/download/v4.19.1/code-server_4.19.1_amd64.deb; \
     fi
+
+RUN dpkg -i code-server_4.19.1_*.deb || apt-get install -f -y
+RUN rm code-server_4.19.1_*.deb
 
 # Install useful VS Code extensions
 RUN code-server --install-extension ms-vscode.cpptools
